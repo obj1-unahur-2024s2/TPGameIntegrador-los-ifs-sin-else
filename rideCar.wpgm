@@ -1,0 +1,7 @@
+import wollok.game.*
+import juego.*
+program rideCar{
+
+	juego.iniciar()
+	game.start()
+}
