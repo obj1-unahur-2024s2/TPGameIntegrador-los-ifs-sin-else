@@ -52,8 +52,6 @@ class Nivel1{
 		juego.pasarASiguienteNivel()
 	}
 
-	
-
 }
 
 object nivel2 inherits Nivel1{
@@ -61,8 +59,8 @@ object nivel2 inherits Nivel1{
 		juego.reset() 
 		super(autoRojo, autoViol, genMonedas, contadorMoneda)
 	}
-    
-	override method cantidad() = 20 
+
+	override method cantidad() = 20
 
 	override method ganar(){
         juego.ganar()
