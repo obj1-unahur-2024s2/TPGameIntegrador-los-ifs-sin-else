@@ -1,4 +1,4 @@
-# Nombre del juego (<- borrar y completar)
+# Ride car
 
 ## Equipo de desarrollo
 
