@@ -76,7 +76,7 @@ class Nivel{
 	}
 
 	//Cantidad necesaria de monedas para ganar
-	method cantidadParaGanar() = 1
+	method cantidadParaGanar() = 10
 
 	//Victoria
 	method ganar(){
@@ -120,6 +120,6 @@ object modoDificil inherits Nivel{
         game.onTick(1000, autosVioletas, {new Obstaculo2().aparecer()})
 	}
 
-	override method cantidadParaGanar() = 2
+	override method cantidadParaGanar() = 20
 
 }
