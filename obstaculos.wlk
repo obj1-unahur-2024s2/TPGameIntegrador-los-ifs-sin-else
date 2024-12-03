@@ -11,7 +11,7 @@ class Obstaculos{
 
     method image()=null
 
-    method posicionAleatoria()=game.at(0.randomUpTo(game.width()-1).truncate(0), game.height()-1)
+    method posicionAleatoria()=game.at(0.randomUpTo(game.width()-1).truncate(0), game.height()-3)
 
     method aparecer(){ 
         if (game.getObjectsIn(position).isEmpty())
@@ -35,7 +35,7 @@ class Obstaculos{
    }
 
    method chocar()
-   method esObstaculo() = true
+   
    
 
 }
@@ -44,7 +44,7 @@ class Obstaculo1 inherits Obstaculos{ //autoRojo resta 2
     override method image()="obstaculo1.png"
 
     override method chocar(){
-        
+        game.sound("sonidoChoque.mp3").play()
         contadorMonedas.restarMonedas(2)
     }
 }
@@ -53,8 +53,27 @@ class Obstaculo2 inherits Obstaculos{ //autoVioleta resta 2 y pierde vida
     override method image()="obstaculo2.png"
 
     override method chocar(){
+        game.sound("sonidoChoque.mp3").play()
         contadorMonedas.restarMonedas(2)
         vidas.perderVida(1)
+    }
+}
+
+class Obstaculo3 inherits Obstaculos{ //autoGris resta 2 vidas
+    override method image()="obstaculo3.png"
+
+    override method chocar(){
+        game.sound("sonidoChoque.mp3").play()
+        vidas.perderVida(2)
+    }
+}
+
+class Obstaculo4 inherits Obstaculos{ //autoNaranja fin del juego
+    override method image()="obstaculo4.png"
+
+    override method chocar(){
+        game.sound("sonidoChoque.mp3").play()
+        vidas.perderVida(3)
     }
 }
 
@@ -63,7 +82,7 @@ class Moneda inherits Obstaculos{
 	override method image() = "moneda.png" 
 	
 	override method chocar(){
-		game.sound("atraparMoneda.mp3").play()
+		game.sound("sonidoMoneda.mp3").play()
 		contadorMonedas.conseguirMoneda()
 		game.removeVisual(self)
 	}

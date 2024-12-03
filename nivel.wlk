@@ -4,67 +4,122 @@ import auto.*
 import pantallas.*
 import obstaculos.*
 
-class Nivel1{
-	method configurar(autoRojo, autoViol, genMonedas, contadorMoneda){ 
-		juego.configuracionInicial()
-		sonidoGeneral.configurar()
-		self.agregarFondo()
-		self.configurarVisuales()
-		self.generarMonedas(genMonedas, contadorMoneda)
-		self.generarObstaculos(autoRojo, autoViol)
-		game.onCollideDo(auto,{a => a.chocar()})
-	} 
 
-	method configurarVisuales(){ 
-		auto.configurar()
-		game.addVisual(contadorMonedas)
-		game.addVisual(vidas) 
+//Molde de nivel
+class Nivel{
+	//Configuracion inicial del nivel
+	method configurar(){
+		sonidoGeneral.configurar() // Configuración de sonido
+		self.agregarFondo() // Agregar fondo del nivel
+		self.configurarVisuales() // Agregar objetos visuales (auto, contador de monedas, etc.)
+		// Generar monedas y obstáculos solo después de la configuración inicial
+		self.generarMonedas("generacion monedas", "contador monedas") 
+		self.generarObstaculos("generacion autoRojo", "generacion autoVioleta")
+		self.generarObstaculosNuevos("generacion autoGris", "generacion autoNaranja")
+		game.onCollideDo(auto, {a => a.chocar()})
 	}
 
-	method eliminarEventosObstaculosNivel(autoRojo, autoVioleta, genMonedas, contMonedas){
-		game.removeTickEvent(autoRojo)
-		game.removeTickEvent(autoVioleta)
-		game.removeTickEvent(genMonedas)
-		game.removeTickEvent(contMonedas)
-
-	}
-
-
-
+	//Agregar fondo
 	method agregarFondo(){
-		game.addVisual(pista)
+		if(!game.hasVisual(pista)){
+			game.addVisual(pista)
+		}
 		sonidoGeneral.sonar()
 	}
 
-	method generarMonedas(mon1, mon2){
-        game.onTick(3000, mon1, {new Moneda().aparecer()})
-        game.onTick(10, mon2, {if (contadorMonedas.cantidadMonedas() == self.cantidad()) self.ganar()})
+	method agregarAuto(){
+			auto.configurar()
+		
+	}
+	//Configuraciones de las visuales
+	method configurarVisuales(){
+		self.agregarAuto()
+		if(!game.hasVisual(contadorMonedas)) {
+        	game.addVisual(contadorMonedas)
     }
-
-	method generarObstaculos(auto1, auto2){
-		game.onTick(600, auto1, {new Obstaculo1().aparecer()}) 
-        game.onTick(1200, auto2, {new Obstaculo2().aparecer()})
+    	if(!game.hasVisual(vidas)) {
+        	game.addVisual(vidas)
+    }
 	}
 
-	method cantidad()= 10
+	//Generacion de monedas
+	method generarMonedas(monedas, contador){
+		game.onTick(3000, monedas, {new Moneda().aparecer()})
+        game.onTick(10, contador, {if (contadorMonedas.cantidadMonedas() == self.cantidadParaGanar()) self.ganar()})
+	}
 
+	//Generacion de obstaculos
+	method generarObstaculos(autosRojos, autosVioletas){
+		game.onTick(600, autosRojos, {new Obstaculo1().aparecer()}) 
+        game.onTick(1200, autosVioletas, {new Obstaculo2().aparecer()})
+	}
+	method generarObstaculosNuevos(autosGrises, autosNaranjas){
+		game.onTick(800, autosGrises, {new Obstaculo3().aparecer()}) 
+        game.onTick(1000, autosNaranjas, {new Obstaculo4().aparecer()})
+	}
+
+	//Eliminacion de eventos
+	method eliminarEventosObstaculosNivel(){
+		game.removeTickEvent("generacion autoRojo")
+		game.removeTickEvent("generacion autoVioleta")
+		game.removeTickEvent("generacion autoGris") 
+		game.removeTickEvent("generacion autoNaranja")
+		game.removeTickEvent("generacion monedas")
+		game.removeTickEvent("contador monedas")
+	}
+
+	//Eliminacion de visuales
+	method eliminarObjetosVisualesDelNivel(){
+		game.removeVisual(auto)
+        game.removeVisual(vidas)
+        game.removeVisual(contadorMonedas)
+	}
+
+	//Cantidad necesaria de monedas para ganar
+	method cantidadParaGanar() = 1
+
+	//Victoria
 	method ganar(){
-		juego.pasarASiguienteNivel()
+		juego.ganar()
 	}
 
 }
 
-object nivel2 inherits Nivel1{
-	override method configurar(autoRojo, autoViol, genMonedas, contadorMoneda){
-		juego.reset() 
-		super(autoRojo, autoViol, genMonedas, contadorMoneda)
+
+//Modo Facil
+object modoFacil inherits Nivel{
+	override method generarObstaculosNuevos(autosGrises, autosNaranjas){
+		
 	}
 
-	override method cantidad() = 20
-
-	override method ganar(){
-        juego.ganar()
-    }
-
+	override method configurar(){
+		game.removeVisual(pantallaModoFacil)
+		self.eliminarEventosObstaculosNivel() 
+		super()
+		
+		
+	}
 }
 
+//Modo dificil
+object modoDificil inherits Nivel{
+
+	override method configurar(){
+		game.removeVisual(pantallaModoDificil)
+		self.eliminarEventosObstaculosNivel()
+		super()
+	}
+
+	override method generarMonedas(monedas, contador){
+		game.onTick(2000, monedas, {new Moneda().aparecer()})
+        game.onTick(10, contador, {if (contadorMonedas.cantidadMonedas() == self.cantidadParaGanar()) juego.ganar()})
+	}
+
+	override method generarObstaculos(autosRojos, autosVioletas){
+		game.onTick(600, autosRojos, {new Obstaculo1().aparecer()}) 
+        game.onTick(1000, autosVioletas, {new Obstaculo2().aparecer()})
+	}
+
+	override method cantidadParaGanar() = 2
+
+}

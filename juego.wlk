@@ -5,15 +5,26 @@ import obstaculos.*
 import auto.*
 
 object juego{
-    const nivel1= new Nivel1()
-    var nivel = nivel1
-
+var modo = null
+//Inicializacion del juego
     method iniciar(){
         self.configuracionInicial() 
-        game.addVisual(pantallaInicio) 
-        keyboard.enter().onPressDo{instrucciones.configurar()} 
+        pantallaInicio.agregarVisual()
+        keyboard.p().onPressDo{
+            self.removerVisualSiHay(pantallaInicio)
+		    self.mostrarInstrucciones()
+        } 
     }
 
+
+    // Pantalla de instrucciones
+    method mostrarInstrucciones(){
+        instrucciones.agregarVisual()
+        keyboard.f().onPressDo{ self.configurarNivelFacil() } // Cambiar a nivel fácil
+        keyboard.d().onPressDo{ self.configurarNivelDificil() } // Cambiar a nivel difícil
+    }
+
+    //Configuracion basica
     method configuracionInicial(){ 
         game.title("Auto")
         game.width(15)
@@ -21,71 +32,86 @@ object juego{
         game.cellSize(40)
     }
 
-    method configurar(){
-        game.removeVisual(instrucciones1)
-        nivel.configurar("generacion autoRojo", "generacion autoVioleta", "generacion monedas", "contador monedas")
-    }
+    //Configuracion del nivel facil
+    method configurarNivelFacil(){
+        pantallaModoFacil.agregarVisual()
+        modo = modoFacil
+         keyboard.c().onPressDo{modo.configurar()}
 
-    method pasarASiguienteNivel(){
-        game.removeVisual(pista)
-        nivel.eliminarEventosObstaculosNivel("generacion autoRojo", "generacion autoVioleta", "generacion monedas", "contador monedas")
-        self.limpiarVisualesDeObstaculos()
-        game.addVisual(pasarDeNivel)
-        nivel = nivel2
-        game.removeVisual(auto)
-        game.removeVisual(vidas)
-        game.removeVisual(contadorMonedas)
+    }
+    //Configuracion del nivel dificil
+    method configurarNivelDificil(){
+        pantallaModoDificil.agregarVisual()
+        modo = modoDificil
+        keyboard.c().onPressDo{modo.configurar()}
         
-        keyboard.enter().onPressDo{
-             game.addVisual(vidas)
-             game.addVisual(contadorMonedas)
-             game.onTick(600, "generacion AutoRojo2", {new Obstaculo1().aparecer()}) 
-             game.onTick(1200, "generacion AutoVioleta2", {new Obstaculo2().aparecer()})
-             game.onTick(3000, "generacion monedas2", {new Moneda().aparecer()})
-             game.onTick(10, "contador monedas2", {if (contadorMonedas.cantidadMonedas() == nivel.cantidad()) self.ganar()})
-             }  
-       
     }
-
+    
+    //Resetear objetos visuales
     method reset(){
         auto.reiniciar()
         vidas.reiniciar()
         contadorMonedas.reiniciar()
     }
 
+    //Victoria
     method ganar(){
-        self.limpiarVisualesDeObstaculos()
-        nivel2.eliminarEventosObstaculosNivel("generacion AutoRojo2", "generacion AutoVioleta2", "generacion monedas2", "contador monedas2")
-        game.removeVisual(pista)
-        game.sound("success.mp3").play() 
-        game.addVisual(pantallaVictoria)
-        keyboard.enter().onPressDo{game.stop()}
+        self.finDelJuego()
+        game.schedule(300, {
+            game.sound("sonidoVictoria.mp3").play()
+            pantallaVictoria.agregarVisual()
+            keyboard.r().onPressDo({self.reiniciarElJuego()})
+        })
+        
     }
 
+
+    //Derrota
+    method derrota(){
+        self.finDelJuego()
+        game.schedule(300, {
+            game.sound("gameOver.mp3").play()
+            pantallaDerrota.agregarVisual()
+            keyboard.r().onPressDo({self.reiniciarElJuego()})
+            })
+    }
+
+    //Fin del juego
     method finDelJuego(){
-        self.limpiarVisualesDeObstaculos()
-        game.removeTickEvent("generacion autoRojo")
-		game.removeTickEvent("generacion autoVioleta")
-		game.removeTickEvent("generacion monedas")
-		game.removeTickEvent("contador monedas")
-        nivel2.eliminarEventosObstaculosNivel("generacion AutoRojo2", "generacion AutoVioleta2", "generacion monedas2", "contador monedas2")
-        game.removeVisual(pista)
+        if(modo != null){
+            modo.eliminarEventosObstaculosNivel()
+            modo.eliminarObjetosVisualesDelNivel()
+        }
         sonidoGeneral.parar()
-        game.sound("gameOver.mp3").play()
-        game.addVisual(pantallaFinal) 
-        keyboard.enter().onPressDo{game.stop()}
+        
+        
     }
-
+    //Limpiar todas las visuales del juego
     method limpiarVisualesDeObstaculos(){
-       game.schedule(200,{game.allVisuals().filter({x => x.esObstaculo()}).forEach({x => game.removeVisual(x)})})
-
+       game.allVisuals().forEach({v => game.removeVisual(v)})
+       game.removeVisual(auto)
+       game.removeVisual(contadorMonedas)
+       game.removeVisual(vidas)   
     }
 
-    method esObstaculo() = false
+    //Reiniciar el juego
+    method reiniciarElJuego(){
+        self.limpiarVisualesDeObstaculos()
+        self.reset()
+        self.iniciar()
+        
+        
+    }
+
+     method removerVisualSiHay(pantalla){
+   		if (game.hasVisual(pantalla))
+   			game.removeVisual(pantalla)	
+   }
+
 }
 
 object sonidoGeneral{
-    const sonido = game.sound("sonidoManejo.mp3") //acá cambié la música por el sonido de manejo
+    const sonido = game.sound("backgroundMusic.mp3")
 
     method sonar(){
         sonido.shouldLoop(true)
@@ -118,7 +144,7 @@ object vidas {
 	method perderVida(cuantas){
 		vidas = 0.max(vidas-cuantas)
 		if (vidas == 0)
-			juego.finDelJuego()
+			juego.derrota()
 	}
 	
 	method cantidadVidas() = vidas
@@ -127,7 +153,6 @@ object vidas {
 		vidas = 3
 	}
 
-     method esObstaculo() = false
 }
 
 object contadorMonedas{
@@ -151,5 +176,5 @@ object contadorMonedas{
         cantMoneda = 0
     }
 
-    method esObstaculo() = false
+
 }

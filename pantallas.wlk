@@ -7,27 +7,24 @@ import auto.*
 
 class Pantalla{
     const position=game.at(0,0)
-    var image
+    var property image
     method position() = position
     method image()=image 
-
-	method esObstaculo() = false
+    
+    method agregarVisual(){
+        if(!game.hasVisual(self)){
+            game.addVisual(self)
+        }
+    }
 }
 
 
-const pantallaInicio= new Pantalla(image="pInicio.png")
-const pista=new Pantalla(image="pistaPantalla.png") 
-const instrucciones1= new Pantalla (image="pantallaInstrucciones.png")
-const pantallaFinal = new Pantalla(image = "pantallaLose.png")
-const pantallaVictoria = new Pantalla(image="pantallaWin.png")
-const pasarDeNivel = new Pantalla(image="pantallaNextLevel.png")
+object pantallaInicio inherits Pantalla(image = "pantallaIntro.jpeg"){}
+object pista inherits Pantalla(image="pistaDeJuego.gif"){}
+object instrucciones inherits Pantalla (image="pantallaInstrucciones.jpeg"){}
+object pantallaDerrota inherits Pantalla(image = "pantallaDerrota.jpeg"){}
+object pantallaVictoria inherits Pantalla(image="pantallaVictoria.jpeg"){}
+object pasarDeNivel inherits Pantalla(image="pantallaNextLevel.png"){}
+object pantallaModoDificil inherits Pantalla(image ="pantallaDificil.jpeg"){}
+object pantallaModoFacil inherits Pantalla(image = "pantallaFacil.jpeg"){}
 
-object instrucciones inherits Pantalla(image="pantallaInstrucciones.png"){ 
-	method configurar(){
-		game.removeVisual(pantallaInicio)
-		game.addVisual(self)
-		keyboard.s().onPressDo{juego.configurar()}
-		keyboard.enter().onPressDo{juego.configurar()}
-	}
-	
-}

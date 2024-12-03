@@ -3,18 +3,21 @@ import juego.*
 import pantallas.*
 
 
+//Auto
 object auto{
 	var position=self.posicionInicial()
+	var teclasConfiguradas = false
 	
 	method position()=position
 	method posicionInicial() = game.at((game.width()/2), 5)
 	
 	method image()="autoPrincipal.png"
 
-	method configurar(){
-		game.addVisual(self)
-		keyboard.right().onPressDo{self.moverDerecha()}
-		keyboard.left().onPressDo{self.moverIzquierda()}
+	method configurar(){	
+		if(!game.hasVisual(self)){
+			game.addVisual(self)
+		}
+		self.configurarTeclas()
 	} 
 	
 	method moverDerecha(){
@@ -27,20 +30,21 @@ object auto{
 			position = position.left(1)
 	}
 
-	method moverArriba(){ 
-		if (position.y() <= game.height()/2)
-			position=position.up(1)
+	
+	method configurarTeclas(){
+		if(!teclasConfiguradas) {
+            keyboard.right().onPressDo({ self.moverDerecha() })
+            keyboard.left().onPressDo({ self.moverIzquierda() })
+            teclasConfiguradas = true // Marca las teclas como configuradas
 	}
-
-	method moverAbajo(){ //mueve mi autito abajo
-		if (position.y() > 3)
-			position=position.down(1)
+	}
+	method reiniciar(){
+		if(game.hasVisual(self)){
+			game.removeVisual(self)
+		}
+		position = self.posicionInicial()
+		
 	}
 	
-	method reiniciar(){
-		position = self.posicionInicial()
-	}
-
-	method esObstaculo() = false
 	
 }
