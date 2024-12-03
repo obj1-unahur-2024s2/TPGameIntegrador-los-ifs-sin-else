@@ -20,7 +20,7 @@ El jugador puede _perder una vida_ si colisiona con alguno de los autos violetas
 ## Modo de juego
 
 ### Controles
-Se utilizan las **flechas** para mover el auto en dirección _ortogonal_ por la pista.
+Se utilizan las **flechas** para mover el auto en dirección horizontal por la pista.
 
 ### Los obstáculos:
 #### Autos rojos
